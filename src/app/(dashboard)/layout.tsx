@@ -26,10 +26,10 @@ export default async function DashboardLayout({
   if (profile.role === "student") {
     const { data: student } = await supabase
       .from("students")
-      .select("nisn")
+      .select("nis")
       .eq("id", user.id)
       .single();
-    subtitle = `NISN: ${student?.nisn || ""}`;
+    subtitle = `NIS: ${student?.nis || ""}`;
   } else {
     const { data: teacher } = await supabase
       .from("teachers")

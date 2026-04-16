@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Eye, EyeOff, AlertCircle, ChevronRight } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Input } from "@/components/ui/input";
-import { classOptions, schoolYearOptions, subjectOptions } from "@/lib/constants";
+import { classOptions, schoolYearOptions, subjectOptions, majorOptions, gradeOptions, classNumberOptions } from "@/lib/constants";
 import { signUp } from "@/actions/signup";
 
 export function SignUpForm() {
@@ -20,9 +20,11 @@ export function SignUpForm() {
     gender: "",
     school: "",
     school_year: "",
-    nisn: "",
+    nis: "",
     birth_date: "",
-    class: "",
+    major: "",
+    grade: "",
+    class_number: "",
     address: "",
     nip: "",
     subject: "",
@@ -50,9 +52,11 @@ export function SignUpForm() {
     formData.set("school_year", form.school_year);
 
     if (role === "student") {
-      formData.set("nisn", form.nisn);
+      formData.set("nis", form.nis);
       formData.set("birth_date", form.birth_date);
-      formData.set("class", form.class);
+      formData.set("major", form.major);
+      formData.set("grade", form.grade);
+      formData.set("class_number", form.class_number);
       formData.set("address", form.address);
     } else {
       formData.set("nip", form.nip);
@@ -154,10 +158,10 @@ export function SignUpForm() {
           <>
             <div className="grid grid-cols-2 gap-x-4">
               <Input
-                label="NISN"
-                value={form.nisn}
-                onChange={f("nisn")}
-                placeholder="10-digit NISN"
+                label="NIS"
+                value={form.nis}
+                onChange={f("nis")}
+                placeholder="5-digit NIS"
                 required
               />
               <Input
@@ -167,21 +171,38 @@ export function SignUpForm() {
                 type="date"
               />
             </div>
-            <div className="grid grid-cols-2 gap-x-4">
+            <div className="grid grid-cols-3 gap-x-4">
+              <Input
+                label="Major"
+                value={form.major}
+                onChange={f("major")}
+                as="select"
+                options={majorOptions}
+                required
+              />
+              <Input
+                label="Grade"
+                value={form.grade}
+                onChange={f("grade")}
+                as="select"
+                options={gradeOptions}
+                required
+              />
               <Input
                 label="Class"
-                value={form.class}
-                onChange={f("class")}
+                value={form.class_number}
+                onChange={f("class_number")}
                 as="select"
-                options={classOptions}
-              />
-              <Input
-                label="Address"
-                value={form.address}
-                onChange={f("address")}
-                placeholder="Your address"
+                options={classNumberOptions}
+                required
               />
             </div>
+            <Input
+              label="Address"
+              value={form.address}
+              onChange={f("address")}
+              placeholder="Your address"
+            />
           </>
         )}
 

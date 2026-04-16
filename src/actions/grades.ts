@@ -49,7 +49,7 @@ export async function uploadGrade(formData: FormData) {
 }
 
 export interface BulkGradeRow {
-  nisn: string;
+  nis: string;
   semester: string;
   matematika_umum: number;
   matematika_peminatan: number;
@@ -84,12 +84,12 @@ export async function uploadBulkGrades(rows: BulkGradeRow[]): Promise<BulkUpload
     const { data: student } = await supabase
       .from("students")
       .select("id")
-      .eq("nisn", row.nisn)
+      .eq("nis", row.nis)
       .single();
 
     if (!student) {
       result.failed++;
-      result.errors.push(`NISN ${row.nisn}: student not found`);
+      result.errors.push(`NIS ${row.nis}: student not found`);
       continue;
     }
 
@@ -121,7 +121,7 @@ export async function uploadBulkGrades(rows: BulkGradeRow[]): Promise<BulkUpload
         .eq("id", existing.id);
       if (error) {
         result.failed++;
-        result.errors.push(`NISN ${row.nisn}, ${row.semester}: ${error.message}`);
+        result.errors.push(`NIS ${row.nis}, ${row.semester}: ${error.message}`);
       } else {
         result.success++;
       }
@@ -134,7 +134,7 @@ export async function uploadBulkGrades(rows: BulkGradeRow[]): Promise<BulkUpload
       });
       if (error) {
         result.failed++;
-        result.errors.push(`NISN ${row.nisn}, ${row.semester}: ${error.message}`);
+        result.errors.push(`NIS ${row.nis}, ${row.semester}: ${error.message}`);
       } else {
         result.success++;
       }
@@ -155,6 +155,40 @@ function revalidatePaths() {
   revalidatePath("/student/status");
 }
 
+export async function saveUploadHistory(data: {
+  fileName: string;
+  rowCount: number;
+  successCount: number;
+  failedCount: number;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const status = data.failedCount === 0 ? "success" : data.successCount === 0 ? "failed" : "partial";
+
+  await supabase.from("upload_history").insert({
+    teacher_id: user.id,
+    file_name: data.fileName,
+    row_count: data.rowCount,
+    success_count: data.successCount,
+    failed_count: data.failedCount,
+    status,
+  });
+
+  revalidatePath("/teacher/upload");
+}
+
+export async function getUploadHistory() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("upload_history")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  return data || [];
+}
+
 export async function getStudentGrades(studentId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -170,10 +204,17 @@ export async function getStudentGrades(studentId: string) {
 export async function getClassStudentsWithGrades(classHandled: string) {
   const supabase = await createClient();
 
-  const { data: students } = await supabase
-    .from("students")
-    .select("*, profiles(*)")
-    .eq("class", classHandled);
+  const parts = classHandled.split(" ");
+  const grade = parts[0] || "";
+  const major = parts[1] || "";
+  const classNumber = parts[2] || "";
+
+  let query = supabase.from("students").select("*, profiles(*)");
+  if (grade) query = query.eq("grade", grade);
+  if (major) query = query.eq("major", major);
+  if (classNumber) query = query.eq("class_number", classNumber);
+
+  const { data: students } = await query;
 
   if (!students) return [];
 
@@ -193,9 +234,11 @@ export async function getClassStudentsWithGrades(classHandled: string) {
 
       return {
         id: s.id,
-        nisn: s.nisn,
+        nis: s.nis,
         birth_date: s.birth_date,
-        class: s.class,
+        major: s.major,
+        grade: s.grade,
+        class_number: s.class_number,
         address: s.address,
         name: s.profiles.name,
         gender: s.profiles.gender,

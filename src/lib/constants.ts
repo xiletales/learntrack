@@ -1,6 +1,15 @@
 export const classOptions = [
-  "10A", "10B", "10C", "11A", "11B", "11C", "12A", "12B", "12C",
+  "10 MIPA 1", "10 MIPA 2", "10 MIPA 3",
+  "10 IPS 1", "10 IPS 2", "10 IPS 3",
+  "11 MIPA 1", "11 MIPA 2", "11 MIPA 3",
+  "11 IPS 1", "11 IPS 2", "11 IPS 3",
+  "12 MIPA 1", "12 MIPA 2", "12 MIPA 3",
+  "12 IPS 1", "12 IPS 2", "12 IPS 3",
 ];
+
+export const majorOptions = ["MIPA", "IPS"];
+export const gradeOptions = ["10", "11", "12"];
+export const classNumberOptions = ["1", "2", "3"];
 
 export const schoolYearOptions = [
   "2022/2023", "2023/2024", "2024/2025", "2025/2026",

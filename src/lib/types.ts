@@ -12,9 +12,11 @@ export interface Profile {
 
 export interface Student {
   id: string;
-  nisn: string;
+  nis: string;
   birth_date: string | null;
-  class: string | null;
+  major: string | null;
+  grade: string | null;
+  class_number: string | null;
   address: string | null;
   profiles: Profile;
 }
@@ -63,9 +65,11 @@ export interface Reflection {
 
 export interface StudentWithData {
   id: string;
-  nisn: string;
+  nis: string;
   birth_date: string | null;
-  class: string | null;
+  major: string | null;
+  grade: string | null;
+  class_number: string | null;
   address: string | null;
   name: string;
   gender: string | null;

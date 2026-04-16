@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getClassStudentsWithGrades } from "@/actions/grades";
+import { getClassStudentsWithGrades, getUploadHistory } from "@/actions/grades";
 import { UploadClient } from "./upload-client";
 
 export default async function TeacherUploadPage() {
@@ -13,13 +13,16 @@ export default async function TeacherUploadPage() {
     ? await getClassStudentsWithGrades(teacher.class_handled)
     : [];
 
+  const history = await getUploadHistory();
+
   return (
     <UploadClient
       students={students.map((s) => ({
         id: s.id,
         name: s.name,
-        class: s.class || "",
+        class: `${s.grade || ""} ${s.major || ""} ${s.class_number || ""}`.trim(),
       }))}
+      uploadHistory={history}
     />
   );
 }

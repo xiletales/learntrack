@@ -25,12 +25,14 @@ export async function updateProfile(formData: FormData) {
 
   if (role === "student") {
     const birthDate = formData.get("birth_date") as string;
-    const studentClass = formData.get("class") as string;
+    const major = formData.get("major") as string;
+    const grade = formData.get("grade") as string;
+    const classNumber = formData.get("class_number") as string;
     const address = formData.get("address") as string;
 
     const { error } = await supabase
       .from("students")
-      .update({ birth_date: birthDate || null, class: studentClass, address })
+      .update({ birth_date: birthDate || null, major: major || null, grade: grade || null, class_number: classNumber || null, address })
       .eq("id", user.id);
     if (error) return { error: error.message };
   } else {

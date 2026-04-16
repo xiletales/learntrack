@@ -83,14 +83,14 @@ export function LoginForm() {
         {/* ID Field */}
         <div className="mb-3.5">
           <label className="block text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
-            {role === "student" ? "NISN" : "Username"}
+            {role === "student" ? "NIS" : "Username"}
           </label>
           <input
             className="w-full px-3.5 py-2.5 rounded-[10px] border-[1.5px] border-emerald-200 text-sm outline-none bg-white text-gray-800 font-[inherit] box-border focus:border-green-600"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             placeholder={
-              role === "student" ? "Enter your NISN" : "Enter your username"
+              role === "student" ? "Enter your NIS" : "Enter your username"
             }
           />
         </div>
@@ -148,7 +148,7 @@ export function LoginForm() {
           <br />
           Student:{" "}
           <code className="bg-green-50 px-1.5 py-0.5 rounded">
-            0012345678
+            12345
           </code>{" "}
           /{" "}
           <code className="bg-green-50 px-1.5 py-0.5 rounded">siswa123</code>
