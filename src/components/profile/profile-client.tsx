@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getStatus } from "@/lib/utils";
-import { classOptions, schoolYearOptions, subjectOptions } from "@/lib/constants";
+import { classOptions, schoolYearOptions, subjectOptions, majorOptions, gradeOptions, classNumberOptions } from "@/lib/constants";
 import { updateProfile, uploadPhoto, removePhoto } from "@/actions/profile";
 import type { Profile, Grade } from "@/lib/types";
 
@@ -59,7 +59,9 @@ export function ProfileClient({ role, profile, extended, grades = [] }: Props) {
     formData.set("school_year", (form.school_year as string) || "");
     if (role === "student") {
       formData.set("birth_date", (form.birth_date as string) || "");
-      formData.set("class", (form.class as string) || "");
+      formData.set("major", (form.major as string) || "");
+      formData.set("grade", (form.grade as string) || "");
+      formData.set("class_number", (form.class_number as string) || "");
       formData.set("address", (form.address as string) || "");
     } else {
       formData.set("jurusan", (form.jurusan as string) || "");
@@ -134,7 +136,7 @@ export function ProfileClient({ role, profile, extended, grades = [] }: Props) {
           <div className="text-[17px] font-bold text-gray-800">{form.name as string}</div>
           {isStudent ? (
             <>
-              <div className="text-gray-500 text-[13px] mt-1">NISN: {form.nisn as string}</div>
+              <div className="text-gray-500 text-[13px] mt-1">NIS: {form.nis as string}</div>
               <div className="mt-2.5">
                 <StatusBadge status={getStatus(grades)} />
               </div>
@@ -195,8 +197,10 @@ export function ProfileClient({ role, profile, extended, grades = [] }: Props) {
             {isStudent ? (
               <>
                 <Input label="Date of Birth" value={(form.birth_date as string) || ""} onChange={f("birth_date")} type="date" readOnly={!editing} />
-                <Input label="NISN" value={(form.nisn as string) || ""} readOnly />
-                <Input label="Class" value={(form.class as string) || ""} onChange={f("class")} as={editing ? "select" : "input"} options={classOptions} readOnly={!editing} />
+                <Input label="NIS" value={(form.nis as string) || ""} readOnly />
+                <Input label="Major" value={(form.major as string) || ""} onChange={f("major")} as={editing ? "select" : "input"} options={majorOptions} readOnly={!editing} />
+                <Input label="Grade" value={(form.grade as string) || ""} onChange={f("grade")} as={editing ? "select" : "input"} options={gradeOptions} readOnly={!editing} />
+                <Input label="Class" value={(form.class_number as string) || ""} onChange={f("class_number")} as={editing ? "select" : "input"} options={classNumberOptions} readOnly={!editing} />
                 <Input label="School Year" value={(form.school_year as string) || ""} onChange={f("school_year")} as={editing ? "select" : "input"} options={schoolYearOptions} readOnly={!editing} />
               </>
             ) : (

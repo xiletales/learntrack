@@ -12,7 +12,7 @@ export async function signIn(formData: FormData) {
 
   const email =
     role === "student"
-      ? `${identifier}@learntrack.local`
+      ? `nis_${identifier}@learntrack.local`
       : identifier.includes("@")
         ? identifier
         : `${identifier}@sman1sragen.sch.id`;

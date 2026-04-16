@@ -10,7 +10,8 @@ import { Card } from "@/components/ui/card";
 import { classOptions, schoolYearOptions, semesterOptions } from "@/lib/constants";
 import { SUBJECT_KEYS, SUBJECT_LABELS, SUBJECT_LABELS_FULL } from "@/lib/types";
 import type { SubjectKey } from "@/lib/types";
-import { uploadGrade, uploadBulkGrades, type BulkGradeRow, type BulkUploadResult } from "@/actions/grades";
+import { uploadGrade, uploadBulkGrades, saveUploadHistory, type BulkGradeRow, type BulkUploadResult } from "@/actions/grades";
+import { Clock, File } from "lucide-react";
 
 interface Student {
   id: string;
@@ -19,7 +20,7 @@ interface Student {
 }
 
 interface ParsedRow {
-  nisn: string;
+  nis: string;
   name: string;
   semester: string;
   grades: Record<SubjectKey, number>;
@@ -97,7 +98,7 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
 
   for (const h of rawHeaders) {
     const norm = normalizeHeader(h);
-    if (norm.includes("nisn")) { headerMap[h] = "nisn"; continue; }
+    if (norm.includes("nisn") || norm.includes("nis")) { headerMap[h] = "nis"; continue; }
     if (norm.includes("nama") || norm === "name") { headerMap[h] = "name"; continue; }
     if (norm.includes("semester") || norm.includes("sem")) { headerMap[h] = "semester"; continue; }
     if (norm.includes("rata") || norm === "avg" || norm === "average") { headerMap[h] = "avg_skip"; continue; }
@@ -115,8 +116,8 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
   const foundSubjects = requiredSubjects.filter((s) => Object.values(headerMap).includes(s));
   const missingSub = requiredSubjects.filter((s) => !Object.values(headerMap).includes(s));
 
-  if (!Object.values(headerMap).includes("nisn")) {
-    errors.push("Missing NISN column.");
+  if (!Object.values(headerMap).includes("nis")) {
+    errors.push("Missing NIS column.");
     return { rows, errors };
   }
   if (!Object.values(headerMap).includes("semester")) {
@@ -138,7 +139,7 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
       return col ? String(raw[col] ?? "").trim() : "";
     };
 
-    const nisn = get("nisn");
+    const nis = get("nis");
     const name = get("name");
     const semester = get("semester");
 
@@ -155,7 +156,7 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
       }
     }
 
-    if (!nisn) { valid = false; error = "Missing NISN"; }
+    if (!nis) { valid = false; error = "Missing NIS"; }
     else if (!semester) { valid = false; error = "Missing semester"; }
     else if (Object.values(grades).some((v) => v < 0 || v > 100)) {
       valid = false; error = "Grades must be 0-100";
@@ -163,17 +164,17 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
 
     const avg = SUBJECT_KEYS.reduce((sum, k) => sum + grades[k], 0) / SUBJECT_KEYS.length;
 
-    rows.push({ nisn, name, semester, grades, avg, valid, error });
+    rows.push({ nis, name, semester, grades, avg, valid, error });
   }
 
   return { rows, errors };
 }
 
 function generateTemplate() {
-  const headers = ["NISN", "Nama Siswa", "Semester",
+  const headers = ["NIS", "Nama Siswa", "Semester",
     ...SUBJECT_KEYS.map((k) => SUBJECT_LABELS_FULL[k])
   ];
-  const example = ["0012345678", "Adi Nugroho", "Sem 1 (Grade 10)",
+  const example = ["12345", "Adi Nugroho", "Sem 1 (Grade 10)",
     78, 75, 85, 80, 82, 76, 74, 70, 80, 78, 75,
   ];
   const ws = XLSX.utils.aoa_to_sheet([headers, example]);
@@ -182,7 +183,17 @@ function generateTemplate() {
   XLSX.writeFile(wb, "learntrack-grade-template.xlsx");
 }
 
-export function UploadClient({ students }: { students: Student[] }) {
+interface UploadHistoryItem {
+  id: string;
+  file_name: string;
+  row_count: number;
+  success_count: number;
+  failed_count: number;
+  status: "success" | "partial" | "failed";
+  created_at: string;
+}
+
+export function UploadClient({ students, uploadHistory = [] }: { students: Student[]; uploadHistory?: UploadHistoryItem[] }) {
   const [form, setForm] = useState<Record<string, string>>({
     studentId: "", class: "", schoolYear: "", semester: "",
     ...Object.fromEntries(SUBJECT_KEYS.map((k) => [k, ""])),
@@ -257,14 +268,20 @@ export function UploadClient({ students }: { students: Student[] }) {
     if (validRows.length === 0) return;
     setBulkUploading(true);
     const payload: BulkGradeRow[] = validRows.map((r) => ({
-      nisn: r.nisn,
+      nis: r.nis,
       semester: r.semester,
       ...r.grades,
     }));
     const result = await uploadBulkGrades(payload);
     setBulkResult(result);
     setBulkUploading(false);
-    if (result.success > 0) router.refresh();
+    await saveUploadHistory({
+      fileName: fileName,
+      rowCount: result.total,
+      successCount: result.success,
+      failedCount: result.failed,
+    });
+    router.refresh();
   };
 
   const clearBulk = () => {
@@ -334,7 +351,7 @@ export function UploadClient({ students }: { students: Student[] }) {
           </button>
         </div>
         <p className="text-gray-500 text-sm leading-relaxed mb-4">
-          Upload an Excel file with columns: <code className="bg-green-50 px-1 py-0.5 rounded text-xs">NISN</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Nama Siswa</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Semester</code>, and all 11 subject columns.
+          Upload an Excel file with columns: <code className="bg-green-50 px-1 py-0.5 rounded text-xs">NIS</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Nama Siswa</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Semester</code>, and all 11 subject columns.
         </p>
 
         {parsedRows.length === 0 && parseErrors.length === 0 && (
@@ -397,7 +414,7 @@ export function UploadClient({ students }: { students: Student[] }) {
                 <thead>
                   <tr className="bg-green-50 text-left">
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">#</th>
-                    <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">NISN</th>
+                    <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">NIS</th>
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">Nama</th>
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">Semester</th>
                     {SUBJECT_KEYS.map((k) => (
@@ -413,7 +430,7 @@ export function UploadClient({ students }: { students: Student[] }) {
                   {parsedRows.map((row, i) => (
                     <tr key={i} className={`border-t border-emerald-100 ${!row.valid ? "bg-red-50/50" : ""}`}>
                       <td className="px-2 py-1.5 text-gray-400 text-xs">{i + 1}</td>
-                      <td className="px-2 py-1.5 font-mono text-[11px] text-gray-800">{row.nisn}</td>
+                      <td className="px-2 py-1.5 font-mono text-[11px] text-gray-800">{row.nis}</td>
                       <td className="px-2 py-1.5 text-xs text-gray-800">{row.name || "—"}</td>
                       <td className="px-2 py-1.5 text-gray-600 text-[10px]">{row.semester}</td>
                       {SUBJECT_KEYS.map((k) => (
@@ -471,6 +488,65 @@ export function UploadClient({ students }: { students: Student[] }) {
           </div>
         )}
       </Card>
+
+      {/* Upload History */}
+      {uploadHistory.length > 0 && (
+        <Card className="mt-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Clock size={16} className="text-green-700" />
+            <h3 className="text-base font-bold text-gray-800">Upload History</h3>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-emerald-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-green-50 text-left">
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase">File</th>
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase">Date</th>
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase text-center">Rows</th>
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase text-center">Success</th>
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase text-center">Failed</th>
+                  <th className="px-3 py-2 text-xs font-bold text-gray-500 uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uploadHistory.map((h) => (
+                  <tr key={h.id} className="border-t border-emerald-100">
+                    <td className="px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <File size={14} className="text-gray-400 shrink-0" />
+                        <span className="text-gray-800 text-sm truncate max-w-[200px]">{h.file_name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">
+                      {new Date(h.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric", month: "short", year: "numeric",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </td>
+                    <td className="px-3 py-2.5 text-center font-semibold text-gray-800">{h.row_count}</td>
+                    <td className="px-3 py-2.5 text-center font-semibold text-green-700">{h.success_count}</td>
+                    <td className="px-3 py-2.5 text-center font-semibold text-red-500">{h.failed_count}</td>
+                    <td className="px-3 py-2.5">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                        h.status === "success"
+                          ? "bg-green-100 text-green-800"
+                          : h.status === "partial"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-red-100 text-red-600"
+                      }`}>
+                        {h.status === "success" && <CheckCircle size={10} />}
+                        {h.status === "partial" && <AlertCircle size={10} />}
+                        {h.status === "failed" && <AlertCircle size={10} />}
+                        {h.status === "success" ? "Success" : h.status === "partial" ? "Partial" : "Failed"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

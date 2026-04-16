@@ -1,10 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Users, TrendingUp, Activity, AlertCircle } from "lucide-react";
-import { Card, StatCard } from "@/components/ui/card";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { getStatus } from "@/lib/utils";
-import { getClassStudentsWithGrades } from "@/actions/grades";
+import { TeacherDashboardClient } from "./dashboard-client";
 
 export default async function TeacherDashboardPage() {
   const supabase = await createClient();
@@ -14,60 +10,43 @@ export default async function TeacherDashboardPage() {
   const { data: profile } = await supabase.from("profiles").select("name").eq("id", user.id).single();
   const { data: teacher } = await supabase.from("teachers").select("class_handled").eq("id", user.id).single();
 
-  const students = teacher?.class_handled
-    ? await getClassStudentsWithGrades(teacher.class_handled)
-    : [];
+  // Fetch ALL students (teacher can filter by major/grade/class on the client)
+  const { data: allStudents } = await supabase.from("students").select("*, profiles(*)");
+
+  const studentIds = (allStudents || []).map((s) => s.id);
+  const { data: allGrades } = await supabase.from("grades").select("*").in("student_id", studentIds.length > 0 ? studentIds : ["none"]).order("created_at");
+  const { data: allReflections } = await supabase.from("reflections").select("*").in("student_id", studentIds.length > 0 ? studentIds : ["none"]).order("created_at");
+
+  const students = (allStudents || []).map((s) => ({
+    id: s.id,
+    nis: s.nis,
+    birth_date: s.birth_date,
+    major: s.major,
+    grade: s.grade,
+    class_number: s.class_number,
+    address: s.address,
+    name: s.profiles.name,
+    gender: s.profiles.gender,
+    school: s.profiles.school,
+    school_year: s.profiles.school_year,
+    photo_url: s.profiles.photo_url,
+    grades: (allGrades || []).filter((g) => g.student_id === s.id),
+    reflections: (allReflections || []).filter((r) => r.student_id === s.id),
+  }));
+
+  // Parse default filter from class_handled
+  const parts = (teacher?.class_handled || "").split(" ");
+  const defaultGrade = parts[0] || "";
+  const defaultMajor = parts[1] || "";
+  const defaultClass = parts[2] || "";
 
   return (
-    <div>
-      <h1 className="text-[26px] font-extrabold text-green-900 mb-1.5">
-        Teacher Dashboard
-      </h1>
-      <p className="text-gray-500 mb-7">
-        Welcome, {profile?.name?.split(",")[0]}! Here&apos;s your class overview.
-      </p>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        <StatCard icon={<Users size={22} />} label="Total Students" value={students.length} />
-        <StatCard icon={<TrendingUp size={22} />} label="Improving" value={students.filter((s) => getStatus(s.grades) === "improving").length} />
-        <StatCard icon={<Activity size={22} />} label="Stable" value={students.filter((s) => getStatus(s.grades) === "stable").length} />
-        <StatCard icon={<AlertCircle size={22} />} label="Needs Attention" value={students.filter((s) => getStatus(s.grades) === "declining").length} />
-      </div>
-
-      <Card>
-        <h3 className="text-base font-bold text-gray-800 mb-4">Class Overview</h3>
-        <div className="flex flex-col gap-2.5">
-          {students.map((s) => {
-            const last = s.grades[s.grades.length - 1];
-            const status = getStatus(s.grades);
-            return (
-              <div
-                key={s.id}
-                className="flex items-center gap-3.5 px-4 py-3 rounded-[10px] bg-green-50/50 border border-emerald-200"
-              >
-                <div className="w-[38px] h-[38px] rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-sm">
-                  {s.name.charAt(0)}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-semibold text-gray-800">{s.name}</div>
-                  <div className="text-xs text-gray-500">
-                    Class {s.class} &bull; {s.school_year}
-                  </div>
-                </div>
-                <div className="text-xl font-extrabold text-green-700">
-                  {last?.avg?.toFixed(1)}
-                </div>
-                <StatusBadge status={status} />
-              </div>
-            );
-          })}
-          {students.length === 0 && (
-            <p className="text-gray-500 text-center py-8">
-              No students found for your class.
-            </p>
-          )}
-        </div>
-      </Card>
-    </div>
+    <TeacherDashboardClient
+      teacherName={profile?.name || ""}
+      students={students}
+      defaultMajor={defaultMajor}
+      defaultGrade={defaultGrade}
+      defaultClass={defaultClass}
+    />
   );
 }

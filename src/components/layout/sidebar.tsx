@@ -24,7 +24,6 @@ const teacherMenu = [
   { href: "/teacher/dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/teacher/students", label: "Student Data", icon: <Users size={18} /> },
   { href: "/teacher/upload", label: "Upload Grades", icon: <Upload size={18} /> },
-  { href: "/teacher/progress", label: "Student Progress", icon: <TrendingUp size={18} /> },
   { href: "/teacher/reflections", label: "Reflections", icon: <MessageSquare size={18} /> },
   { href: "/teacher/profile", label: "My Profile", icon: <User size={18} /> },
 ];

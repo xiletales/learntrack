@@ -24,9 +24,9 @@ export async function signUp(formData: FormData) {
   let email: string;
 
   if (role === "student") {
-    const nisn = formData.get("nisn") as string;
-    if (!nisn) return { error: "NISN is required for students." };
-    email = `${nisn}@learntrack.local`;
+    const nis = formData.get("nis") as string;
+    if (!nis) return { error: "NIS is required for students." };
+    email = `nis_${nis}@learntrack.local`;
   } else {
     const teacherEmail = formData.get("email") as string;
     if (!teacherEmail) return { error: "Email is required for teachers." };
@@ -65,16 +65,20 @@ export async function signUp(formData: FormData) {
   }
 
   if (role === "student") {
-    const nisn = formData.get("nisn") as string;
+    const nis = formData.get("nis") as string;
     const birthDate = formData.get("birth_date") as string;
-    const studentClass = formData.get("class") as string;
+    const major = formData.get("major") as string;
+    const grade = formData.get("grade") as string;
+    const classNumber = formData.get("class_number") as string;
     const address = formData.get("address") as string;
 
     const { error } = await supabase.from("students").insert({
       id: userId,
-      nisn,
+      nis,
       birth_date: birthDate || null,
-      class: studentClass || null,
+      major: major || null,
+      grade: grade || null,
+      class_number: classNumber || null,
       address: address || null,
     });
     if (error) return { error: error.message };
