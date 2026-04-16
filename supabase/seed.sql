@@ -1,0 +1,14 @@
+-- ═══════════════════════════════════════════════════════════════════
+-- LearnTrack — Seed Data
+-- ═══════════════════════════════════════════════════════════════════
+--
+-- IMPORTANT: You must first create auth users via the Supabase dashboard
+-- or via the Auth API. Run the seed-users.ts script first, then run this.
+--
+-- After creating users, replace the UUIDs below with the actual UUIDs
+-- from auth.users.
+--
+-- OR use the seed-users.ts script which does everything automatically.
+-- ═══════════════════════════════════════════════════════════════════
+
+-- This file is a template. Use seed-users.ts for automated seeding.
