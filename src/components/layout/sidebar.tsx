@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, TrendingUp, Activity, BookOpen, User, Users,
-  Upload, MessageSquare, LogOut, Menu, ChevronRight,
+  Upload, MessageSquare, LogOut, Menu, ChevronRight, UserPlus,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Modal } from "@/components/ui/modal";
@@ -23,6 +23,7 @@ const studentMenu = [
 const teacherMenu = [
   { href: "/teacher/dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/teacher/students", label: "Student Data", icon: <Users size={18} /> },
+  { href: "/teacher/add-students", label: "Add Students", icon: <UserPlus size={18} /> },
   { href: "/teacher/upload", label: "Upload Grades", icon: <Upload size={18} /> },
   { href: "/teacher/reflections", label: "Reflections", icon: <MessageSquare size={18} /> },
   { href: "/teacher/profile", label: "My Profile", icon: <User size={18} /> },
