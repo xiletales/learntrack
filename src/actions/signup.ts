@@ -6,37 +6,19 @@ import { redirect } from "next/navigation";
 export async function signUp(formData: FormData) {
   const supabase = await createClient();
 
-  const role = formData.get("role") as string;
   const name = formData.get("name") as string;
   const password = formData.get("password") as string;
+  const gender = formData.get("gender") as string;
   const school = formData.get("school") as string;
   const schoolYear = formData.get("school_year") as string;
-  const gender = formData.get("gender") as string;
 
-  if (!role || !name || !password) {
-    return { error: "Name, password, and role are required." };
-  }
+  if (!name || !password) return { error: "Name and password are required." };
+  if (password.length < 6) return { error: "Password must be at least 6 characters." };
 
-  if (password.length < 6) {
-    return { error: "Password must be at least 6 characters." };
-  }
+  const email = formData.get("email") as string;
+  if (!email) return { error: "Email is required." };
 
-  let email: string;
-
-  if (role === "student") {
-    const nis = formData.get("nis") as string;
-    if (!nis) return { error: "NIS is required for students." };
-    email = `nis_${nis}@learntrack.local`;
-  } else {
-    const teacherEmail = formData.get("email") as string;
-    if (!teacherEmail) return { error: "Email is required for teachers." };
-    email = teacherEmail;
-  }
-
-  const { data, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  const { data, error: authError } = await supabase.auth.signUp({ email, password });
 
   if (authError) {
     if (authError.message.includes("already been registered")) {
@@ -45,65 +27,41 @@ export async function signUp(formData: FormData) {
     return { error: authError.message };
   }
 
-  if (!data.user) {
-    return { error: "Failed to create account." };
-  }
+  if (!data.user) return { error: "Failed to create account." };
 
   const userId = data.user.id;
 
   const { error: profileError } = await supabase.from("profiles").insert({
     id: userId,
-    role,
+    role: "teacher",
     name,
     gender: gender || null,
     school: school || null,
     school_year: schoolYear || null,
   });
 
-  if (profileError) {
-    return { error: profileError.message };
-  }
+  if (profileError) return { error: profileError.message };
 
-  if (role === "student") {
-    const nis = formData.get("nis") as string;
-    const birthDate = formData.get("birth_date") as string;
-    const major = formData.get("major") as string;
-    const grade = formData.get("grade") as string;
-    const classNumber = formData.get("class_number") as string;
-    const address = formData.get("address") as string;
+  const nip = formData.get("nip") as string;
+  const jurusan = formData.get("jurusan") as string;
+  const subject = formData.get("subject") as string;
+  const classHandled = formData.get("class_handled") as string;
+  const phone = formData.get("phone") as string;
 
-    const { error } = await supabase.from("students").insert({
-      id: userId,
-      nis,
-      birth_date: birthDate || null,
-      major: major || null,
-      grade: grade || null,
-      class_number: classNumber || null,
-      address: address || null,
-    });
-    if (error) return { error: error.message };
-  } else {
-    const nip = formData.get("nip") as string;
-    const jurusan = formData.get("jurusan") as string;
-    const subject = formData.get("subject") as string;
-    const classHandled = formData.get("class_handled") as string;
-    const phone = formData.get("phone") as string;
-    const teacherEmail = formData.get("email") as string;
+  if (!nip) return { error: "NIP is required." };
+  if (!jurusan) return { error: "Jurusan (MIPA/IPS) is required." };
 
-    if (!nip) return { error: "NIP is required for teachers." };
-    if (!jurusan) return { error: "Jurusan (MIPA/IPS) is required for teachers." };
+  const { error } = await supabase.from("teachers").insert({
+    id: userId,
+    nip,
+    jurusan,
+    class_handled: classHandled || null,
+    subject: subject || null,
+    phone: phone || null,
+    email: email || null,
+  });
 
-    const { error } = await supabase.from("teachers").insert({
-      id: userId,
-      nip,
-      jurusan,
-      class_handled: classHandled || null,
-      subject: subject || null,
-      phone: phone || null,
-      email: teacherEmail || null,
-    });
-    if (error) return { error: error.message };
-  }
+  if (error) return { error: error.message };
 
-  redirect(role === "teacher" ? "/teacher/dashboard" : "/student/dashboard");
+  redirect("/teacher/dashboard");
 }

@@ -5,11 +5,10 @@ import Link from "next/link";
 import { Eye, EyeOff, AlertCircle, ChevronRight } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Input } from "@/components/ui/input";
-import { classOptions, schoolYearOptions, subjectOptions, majorOptions, gradeOptions, classNumberOptions } from "@/lib/constants";
+import { classOptions, schoolYearOptions, subjectOptions } from "@/lib/constants";
 import { signUp } from "@/actions/signup";
 
 export function SignUpForm() {
-  const [role, setRole] = useState<"student" | "teacher">("student");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,18 +19,12 @@ export function SignUpForm() {
     gender: "",
     school: "",
     school_year: "",
-    nis: "",
-    birth_date: "",
-    major: "",
-    grade: "",
-    class_number: "",
-    address: "",
     nip: "",
+    jurusan: "",
     subject: "",
     class_handled: "",
     phone: "",
     email: "",
-    jurusan: "",
   });
 
   const f = (k: string) => (
@@ -44,28 +37,18 @@ export function SignUpForm() {
     setLoading(true);
 
     const formData = new FormData();
-    formData.set("role", role);
+    formData.set("role", "teacher");
     formData.set("name", form.name);
     formData.set("password", form.password);
     formData.set("gender", form.gender);
     formData.set("school", form.school);
     formData.set("school_year", form.school_year);
-
-    if (role === "student") {
-      formData.set("nis", form.nis);
-      formData.set("birth_date", form.birth_date);
-      formData.set("major", form.major);
-      formData.set("grade", form.grade);
-      formData.set("class_number", form.class_number);
-      formData.set("address", form.address);
-    } else {
-      formData.set("nip", form.nip);
-      formData.set("email", form.email);
-      formData.set("jurusan", form.jurusan);
-      formData.set("subject", form.subject);
-      formData.set("class_handled", form.class_handled);
-      formData.set("phone", form.phone);
-    }
+    formData.set("nip", form.nip);
+    formData.set("email", form.email);
+    formData.set("jurusan", form.jurusan);
+    formData.set("subject", form.subject);
+    formData.set("class_handled", form.class_handled);
+    formData.set("phone", form.phone);
 
     const result = await signUp(formData);
     if (result?.error) {
@@ -92,35 +75,13 @@ export function SignUpForm() {
         <div className="text-center mb-6">
           <Logo size={52} />
           <h2 className="text-[26px] font-extrabold text-green-900 mt-3 mb-1">
-            Create Account
+            Teacher Registration
           </h2>
           <p className="text-gray-500 text-sm">
-            Join LearnTrack to start tracking academic progress
+            Create your teacher account to start managing students
           </p>
         </div>
 
-        {/* Role Toggle */}
-        <div className="flex bg-green-50 rounded-xl p-1 mb-5">
-          {(["student", "teacher"] as const).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => {
-                setRole(r);
-                setError("");
-              }}
-              className={`flex-1 py-2 rounded-[9px] border-none cursor-pointer text-sm font-semibold transition-all duration-200 ${
-                role === r
-                  ? "bg-green-700 text-white"
-                  : "bg-transparent text-gray-500"
-              }`}
-            >
-              {r === "student" ? "Student" : "Teacher"}
-            </button>
-          ))}
-        </div>
-
-        {/* Common fields */}
         <Input
           label="Full Name"
           value={form.name}
@@ -131,11 +92,63 @@ export function SignUpForm() {
 
         <div className="grid grid-cols-2 gap-x-4">
           <Input
+            label="NIP"
+            value={form.nip}
+            onChange={f("nip")}
+            placeholder="National Teacher ID"
+            required
+          />
+          <Input
+            label="Email"
+            value={form.email}
+            onChange={f("email")}
+            type="email"
+            placeholder="your@email.com"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4">
+          <Input
             label="Gender"
             value={form.gender}
             onChange={f("gender")}
             as="select"
             options={["Male", "Female"]}
+          />
+          <Input
+            label="Jurusan"
+            value={form.jurusan}
+            onChange={f("jurusan")}
+            as="select"
+            options={["MIPA", "IPS"]}
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4">
+          <Input
+            label="Subject"
+            value={form.subject}
+            onChange={f("subject")}
+            as="select"
+            options={subjectOptions}
+          />
+          <Input
+            label="Class Handled"
+            value={form.class_handled}
+            onChange={f("class_handled")}
+            as="select"
+            options={classOptions}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-4">
+          <Input
+            label="School"
+            value={form.school}
+            onChange={f("school")}
+            placeholder="e.g. SMA Negeri 1 Sragen"
           />
           <Input
             label="School Year"
@@ -147,117 +160,11 @@ export function SignUpForm() {
         </div>
 
         <Input
-          label="School"
-          value={form.school}
-          onChange={f("school")}
-          placeholder="e.g. SMA Negeri 1 Sragen"
+          label="Phone"
+          value={form.phone}
+          onChange={f("phone")}
+          placeholder="081234567890"
         />
-
-        {/* Student-specific fields */}
-        {role === "student" && (
-          <>
-            <div className="grid grid-cols-2 gap-x-4">
-              <Input
-                label="NIS"
-                value={form.nis}
-                onChange={f("nis")}
-                placeholder="5-digit NIS"
-                required
-              />
-              <Input
-                label="Date of Birth"
-                value={form.birth_date}
-                onChange={f("birth_date")}
-                type="date"
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-x-4">
-              <Input
-                label="Major"
-                value={form.major}
-                onChange={f("major")}
-                as="select"
-                options={majorOptions}
-                required
-              />
-              <Input
-                label="Grade"
-                value={form.grade}
-                onChange={f("grade")}
-                as="select"
-                options={gradeOptions}
-                required
-              />
-              <Input
-                label="Class"
-                value={form.class_number}
-                onChange={f("class_number")}
-                as="select"
-                options={classNumberOptions}
-                required
-              />
-            </div>
-            <Input
-              label="Address"
-              value={form.address}
-              onChange={f("address")}
-              placeholder="Your address"
-            />
-          </>
-        )}
-
-        {/* Teacher-specific fields */}
-        {role === "teacher" && (
-          <>
-            <div className="grid grid-cols-2 gap-x-4">
-              <Input
-                label="NIP"
-                value={form.nip}
-                onChange={f("nip")}
-                placeholder="National Teacher ID"
-                required
-              />
-              <Input
-                label="Email"
-                value={form.email}
-                onChange={f("email")}
-                type="email"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-            <Input
-              label="Jurusan"
-              value={form.jurusan}
-              onChange={f("jurusan")}
-              as="select"
-              options={["MIPA", "IPS"]}
-              required
-            />
-            <div className="grid grid-cols-2 gap-x-4">
-              <Input
-                label="Subject"
-                value={form.subject}
-                onChange={f("subject")}
-                as="select"
-                options={subjectOptions}
-              />
-              <Input
-                label="Class Handled"
-                value={form.class_handled}
-                onChange={f("class_handled")}
-                as="select"
-                options={classOptions}
-              />
-            </div>
-            <Input
-              label="Phone"
-              value={form.phone}
-              onChange={f("phone")}
-              placeholder="081234567890"
-            />
-          </>
-        )}
 
         {/* Password */}
         <div className="mb-4">
