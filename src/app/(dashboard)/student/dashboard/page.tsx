@@ -29,19 +29,19 @@ export default async function StudentDashboardPage() {
       </p>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
-        <StatCard icon={<TrendingUp size={22} />} label="Rata-rata Terakhir" value={lastGrade?.avg?.toFixed(1) || "—"} />
-        <StatCard icon={<Activity size={22} />} label="Semester Tercatat" value={g.length} />
-        <StatCard icon={<Target size={22} />} label="Refleksi" value={reflections?.length || 0} />
+        <StatCard icon={<TrendingUp size={22} />} label="Latest Average" value={lastGrade?.avg?.toFixed(1) || "—"} />
+        <StatCard icon={<Activity size={22} />} label="Semesters Recorded" value={g.length} />
+        <StatCard icon={<Target size={22} />} label="Reflections" value={reflections?.length || 0} />
         <StatCard icon={<Award size={22} />} label="Status" value={<StatusBadge status={status} />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-5">
         <Card>
-          <h3 className="text-base font-bold text-gray-800 mb-4">Tren Nilai (Semua Semester)</h3>
+          <h3 className="text-base font-bold text-gray-800 mb-4">Grade Trend (All Semesters)</h3>
           <GradeAreaChart grades={g} />
         </Card>
         <Card>
-          <h3 className="text-base font-bold text-gray-800 mb-4">Semester Terakhir</h3>
+          <h3 className="text-base font-bold text-gray-800 mb-4">Latest Semester</h3>
           {lastGrade &&
             SUBJECT_KEYS.map((key) => {
               const v = lastGrade[key];

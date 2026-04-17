@@ -95,9 +95,9 @@ export function StudentDataClient({ students }: { students: StudentWithData[] })
                   >
                     <div className="mt-4 pt-4 border-t border-emerald-200">
                       {/* Per-semester detail */}
-                      <h4 className="text-sm font-bold text-gray-800 mb-3">Nilai Per Semester</h4>
+                      <h4 className="text-sm font-bold text-gray-800 mb-3">Grades Per Semester</h4>
                       {s.grades.length === 0 ? (
-                        <p className="text-gray-500 text-sm py-4 text-center">Belum ada data nilai.</p>
+                        <p className="text-gray-500 text-sm py-4 text-center">No grade data yet.</p>
                       ) : (
                         <div className="flex flex-col gap-2.5 mb-4">
                           {s.grades.map((g, idx) => (
@@ -115,7 +115,7 @@ export function StudentDataClient({ students }: { students: StudentWithData[] })
                                   </span>
                                 </div>
                                 <span className="text-sm font-bold text-green-700">
-                                  Rata-rata: {g.avg.toFixed(1)}
+                                  Average: {g.avg.toFixed(1)}
                                 </span>
                               </div>
                               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5">
@@ -139,7 +139,7 @@ export function StudentDataClient({ students }: { students: StudentWithData[] })
                           className="mb-4"
                         >
                           <BarChart2 size={14} />
-                          {chartOpen ? "Sembunyikan Grafik" : "Tampilkan Grafik"}
+                          {chartOpen ? "Hide Charts" : "Show Charts"}
                         </Button>
                       )}
 
@@ -154,21 +154,21 @@ export function StudentDataClient({ students }: { students: StudentWithData[] })
                           >
                             {/* Grade trend chart */}
                             <div className="mb-5">
-                              <h4 className="text-sm font-bold text-gray-800 mb-3">Grafik Rata-rata Per Semester</h4>
+                              <h4 className="text-sm font-bold text-gray-800 mb-3">Average Grade Per Semester</h4>
                               <ResponsiveContainer width="100%" height={220}>
                                 <LineChart data={s.grades}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#cde5d2" />
                                   <XAxis dataKey="semester" tick={{ fontSize: 9 }} />
                                   <YAxis domain={[40, 100]} tick={{ fontSize: 10 }} />
                                   <Tooltip />
-                                  <Line type="monotone" dataKey="avg" stroke="#2d7a35" strokeWidth={3} dot={{ r: 5, fill: "#2d7a35" }} name="Rata-rata" />
+                                  <Line type="monotone" dataKey="avg" stroke="#2d7a35" strokeWidth={3} dot={{ r: 5, fill: "#2d7a35" }} name="Average" />
                                 </LineChart>
                               </ResponsiveContainer>
                             </div>
 
                             {/* Subject chart */}
                             <div className="mb-2">
-                              <h4 className="text-sm font-bold text-gray-800 mb-3">Grafik Mata Pelajaran (All Semesters)</h4>
+                              <h4 className="text-sm font-bold text-gray-800 mb-3">Subject Chart (All Semesters)</h4>
                               <ResponsiveContainer width="100%" height={280}>
                                 <LineChart data={s.grades}>
                                   <CartesianGrid strokeDasharray="3 3" stroke="#cde5d2" />
@@ -193,14 +193,14 @@ export function StudentDataClient({ students }: { students: StudentWithData[] })
 
                             {/* Subject bar chart — last semester */}
                             <div>
-                              <h4 className="text-sm font-bold text-gray-800 mb-3">Nilai Semester Terakhir</h4>
+                              <h4 className="text-sm font-bold text-gray-800 mb-3">Latest Semester Grades</h4>
                               <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={subjectBarData} layout="vertical">
                                   <CartesianGrid strokeDasharray="3 3" stroke="#cde5d2" />
                                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
                                   <YAxis type="category" dataKey="subject" tick={{ fontSize: 9 }} width={80} />
                                   <Tooltip />
-                                  <Bar dataKey="value" fill="#2d7a35" radius={[0, 4, 4, 0]} name="Nilai" />
+                                  <Bar dataKey="value" fill="#2d7a35" radius={[0, 4, 4, 0]} name="Grade" />
                                 </BarChart>
                               </ResponsiveContainer>
                             </div>

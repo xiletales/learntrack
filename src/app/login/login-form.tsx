@@ -143,23 +143,6 @@ export function LoginForm() {
           </Link>
         </div>
 
-        <div className="text-center mt-3 p-3.5 bg-green-50/50 rounded-[10px] text-xs text-gray-500 leading-[1.9]">
-          <strong className="text-green-900">Demo Credentials</strong>
-          <br />
-          Student:{" "}
-          <code className="bg-green-50 px-1.5 py-0.5 rounded">
-            12345
-          </code>{" "}
-          /{" "}
-          <code className="bg-green-50 px-1.5 py-0.5 rounded">siswa123</code>
-          <br />
-          Teacher:{" "}
-          <code className="bg-green-50 px-1.5 py-0.5 rounded">
-            budi.santoso
-          </code>{" "}
-          /{" "}
-          <code className="bg-green-50 px-1.5 py-0.5 rounded">guru123</code>
-        </div>
       </form>
     </div>
   );

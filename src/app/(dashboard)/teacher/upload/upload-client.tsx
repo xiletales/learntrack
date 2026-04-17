@@ -171,7 +171,7 @@ function parseExcelFile(data: ArrayBuffer): { rows: ParsedRow[]; errors: string[
 }
 
 function generateTemplate() {
-  const headers = ["NIS", "Nama Siswa", "Semester",
+  const headers = ["NIS", "Student Name", "Semester",
     ...SUBJECT_KEYS.map((k) => SUBJECT_LABELS_FULL[k])
   ];
   const example = ["12345", "Adi Nugroho", "Sem 1 (Grade 10)",
@@ -334,7 +334,7 @@ export function UploadClient({ students, uploadHistory = [] }: { students: Stude
         </div>
         {avg && (
           <div className="p-3 bg-green-50 rounded-lg mb-3.5 text-sm font-semibold text-green-900">
-            Rata-rata: {avg}
+            Average: {avg}
           </div>
         )}
         <Button onClick={handleSave} disabled={saving}>
@@ -351,7 +351,7 @@ export function UploadClient({ students, uploadHistory = [] }: { students: Stude
           </button>
         </div>
         <p className="text-gray-500 text-sm leading-relaxed mb-4">
-          Upload an Excel file with columns: <code className="bg-green-50 px-1 py-0.5 rounded text-xs">NIS</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Nama Siswa</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Semester</code>, and all 11 subject columns.
+          Upload an Excel file with columns: <code className="bg-green-50 px-1 py-0.5 rounded text-xs">NIS</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Student Name</code>, <code className="bg-green-50 px-1 py-0.5 rounded text-xs">Semester</code>, and all 11 subject columns.
         </p>
 
         {parsedRows.length === 0 && parseErrors.length === 0 && (
@@ -415,7 +415,7 @@ export function UploadClient({ students, uploadHistory = [] }: { students: Stude
                   <tr className="bg-green-50 text-left">
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">#</th>
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">NIS</th>
-                    <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">Nama</th>
+                    <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">Name</th>
                     <th className="px-2 py-2 text-[10px] font-bold text-gray-500 uppercase">Semester</th>
                     {SUBJECT_KEYS.map((k) => (
                       <th key={k} className="px-1.5 py-2 text-[9px] font-bold text-gray-500 uppercase text-center whitespace-nowrap">
@@ -518,7 +518,7 @@ export function UploadClient({ students, uploadHistory = [] }: { students: Stude
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap">
-                      {new Date(h.created_at).toLocaleDateString("id-ID", {
+                      {new Date(h.created_at).toLocaleDateString("en-US", {
                         day: "numeric", month: "short", year: "numeric",
                         hour: "2-digit", minute: "2-digit",
                       })}

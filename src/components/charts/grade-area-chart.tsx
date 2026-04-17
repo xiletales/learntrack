@@ -27,7 +27,7 @@ export function GradeAreaChart({ grades }: { grades: Grade[] }) {
           strokeWidth={2.5}
           fill="url(#colorAvg)"
           dot={{ r: 4, fill: "#2d7a35" }}
-          name="Rata-rata"
+          name="Average"
         />
       </AreaChart>
     </ResponsiveContainer>

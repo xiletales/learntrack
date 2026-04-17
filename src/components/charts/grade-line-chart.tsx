@@ -25,7 +25,7 @@ const SUBJECT_COLORS: Record<string, string> = {
 type ViewKey = "avg" | typeof SUBJECT_KEYS[number];
 
 const viewOptions: { key: ViewKey; label: string }[] = [
-  { key: "avg", label: "Rata-rata" },
+  { key: "avg", label: "Average" },
   ...SUBJECT_KEYS.map((k) => ({ key: k as ViewKey, label: SUBJECT_LABELS[k] })),
 ];
 
@@ -57,7 +57,7 @@ export function GradeLineChart({ grades }: { grades: Grade[] }) {
           <Tooltip />
           <Legend />
           {view === "avg" ? (
-            <Line type="monotone" dataKey="avg" stroke="#2d7a35" strokeWidth={3} dot={{ r: 5, fill: "#2d7a35" }} name="Rata-rata" />
+            <Line type="monotone" dataKey="avg" stroke="#2d7a35" strokeWidth={3} dot={{ r: 5, fill: "#2d7a35" }} name="Average" />
           ) : (
             <Line type="monotone" dataKey={view} stroke={SUBJECT_COLORS[view] || "#5aad6a"} strokeWidth={3} dot={{ r: 5, fill: SUBJECT_COLORS[view] || "#5aad6a" }} name={SUBJECT_LABELS[view as typeof SUBJECT_KEYS[number]]} />
           )}

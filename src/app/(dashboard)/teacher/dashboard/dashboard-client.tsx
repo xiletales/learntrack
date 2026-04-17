@@ -319,7 +319,7 @@ export function TeacherDashboardClient({ teacherName, students: allStudents, def
 
         {/* Subject trend chart (like student progress) */}
         <Card>
-          <h3 className="text-sm font-bold text-gray-800 mb-4">Grafik Mata Pelajaran (Class Average)</h3>
+          <h3 className="text-sm font-bold text-gray-800 mb-4">Subject Chart (Class Average)</h3>
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={subjectTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#cde5d2" />

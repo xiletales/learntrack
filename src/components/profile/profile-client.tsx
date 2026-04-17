@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getStatus } from "@/lib/utils";
-import { classOptions, schoolYearOptions, subjectOptions, majorOptions, gradeOptions, classNumberOptions } from "@/lib/constants";
+import { classOptions, schoolYearOptions, majorOptions, gradeOptions, classNumberOptions } from "@/lib/constants";
 import { updateProfile, uploadPhoto, removePhoto } from "@/actions/profile";
 import type { Profile, Grade } from "@/lib/types";
 
@@ -206,10 +206,8 @@ export function ProfileClient({ role, profile, extended, grades = [] }: Props) {
             ) : (
               <>
                 <Input label="NIP" value={(form.nip as string) || ""} readOnly />
-                <Input label="Jurusan" value={(form.jurusan as string) || ""} onChange={f("jurusan")} as={editing ? "select" : "input"} options={["MIPA", "IPS"]} readOnly={!editing} />
-                <Input label="Subject" value={(form.subject as string) || ""} onChange={f("subject")} as={editing ? "select" : "input"} options={subjectOptions} readOnly={!editing} />
+                <Input label="Major" value={(form.jurusan as string) || ""} onChange={f("jurusan")} as={editing ? "select" : "input"} options={["MIPA", "IPS"]} readOnly={!editing} />
                 <Input label="Class Handled" value={(form.class_handled as string) || ""} onChange={f("class_handled")} as={editing ? "select" : "input"} options={classOptions} readOnly={!editing} />
-                <Input label="School Year" value={(form.school_year as string) || ""} onChange={f("school_year")} as={editing ? "select" : "input"} options={schoolYearOptions} readOnly={!editing} />
               </>
             )}
             <Input label="School" value={(form.school as string) || ""} onChange={f("school")} readOnly={!editing} />
