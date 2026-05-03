@@ -23,7 +23,6 @@ export interface Student {
 
 export interface Teacher {
   id: string;
-  nip: string;
   jurusan: string | null;
   class_handled: string | null;
   subject: string | null;
@@ -82,7 +81,6 @@ export interface StudentWithData {
 
 export interface TeacherProfile {
   id: string;
-  nip: string;
   jurusan: string | null;
   class_handled: string | null;
   subject: string | null;
